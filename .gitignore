@@ -1,0 +1,94 @@
+# .gitignore für Power BI PBIP + Azure DevOps
+
+## Power BI PBIP Secrets & Temp Files
+*.pbix                          # Desktop Dateien (nicht in Git!)
+*.pbit                          # Templates
+~*.pbix                         # Locks
+.pbi/                           # PBI Desktop Cache
+
+## Credentials & Sensitive Data
+**/.platform_secrets            # Nicht committed!
+**/connectionStrings.json       # DB Credentials
+**/*.credentials                # API Keys
+**/*.env                        # Environment Variables
+**/appsettings.*.json           # Secrets
+**/.env.local
+**/.env.*.local
+
+## PBI Desktop Runtime
+.pbidesktop/
+.*_temp
+*.tmp
+cache/
+
+## Azure/Fabric Authentifizierung
+**/*.PublishSettings
+**/PublishSettings.json
+**/local.settings.json
+
+## IDE & Editor
+.vscode/settings.json           # User settings (optional)
+.vscode/extensions/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+## Python Cache (für Validierungs-Skripte)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv
+
+## Node/npm (falls Web-Komponenten)
+node_modules/
+package-lock.json
+.npm
+
+## Build Outputs
+bin/
+obj/
+dist/
+build/
+
+## Test Outputs
+.pytest_cache/
+coverage/
+test-results/
+
+## OS Specific
+Thumbs.db
+.AppleDouble
+
+## DevOps / CI Artifacts (lokal, nicht im Repo)
+.agent/
+.temp/
+.reports/
+
+## Logs
+*.log
+logs/
+
+## PBIP Project Backups (außer aktive)
+**/*.backup.SemanticModel/
+**/*.bak/
+**/*.old/
+
+## Template-Backups (ggf. in separatem Branch)
+TEMPLATE_BACKUP_*
+
+## User-spezifische Parameter (jeder Nutzer hat eigene!)
+00_KONFIGURATION/parameters.local.md
+00_KONFIGURATION/*.local.*
+
+## Optional: Große Binärdateien (falls externe Daten)
+*.csv
+*.xlsx
+*.parquet
+# Uncomment wenn Daten committed werden sollen:
+# !outputs/*.csv

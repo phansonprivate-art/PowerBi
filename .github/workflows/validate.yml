@@ -1,0 +1,161 @@
+name: PBIP Validation (Phase 3 Checks)
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'POWER_BI_PBIP_AUTOMATION/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-json:
+    name: 'CHECK 3: JSON Syntax'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Validate JSON files
+        run: |
+          python POWER_BI_PBIP_AUTOMATION/05_AUTOMATION_SCRIPTS/validate-json-syntax.py
+        continue-on-error: false
+
+  validate-schema:
+    name: 'CHECK 4: Schema Versions'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check definition.pbism = v4.2
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "definition.pbism" -Recurse
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -notmatch '"version":\s*"4\.2"') {
+              Write-Error "ERROR: definition.pbism must have version 4.2, found in $($file.FullName)"
+              exit 1
+            }
+          }
+
+      - name: Check forbidden version patterns
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "*.json" -Recurse
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -match '"version":\s*"1\.0\.0"') {
+              Write-Error "ERROR: Found forbidden version 1.0.0 in $($file.FullName)"
+              exit 1
+            }
+          }
+
+  validate-patterns:
+    name: 'CHECK 5: Forbidden Patterns'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check no "Source" in SourceRef
+        shell: pwsh
+        run: |
+          $visual_files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "visual.json" -Recurse
+          foreach ($file in $visual_files) {
+            $content = Get-Content $file.FullName -Raw | ConvertFrom-Json
+            # Simple check for forbidden patterns
+            if ($content -match '"Source":') {
+              Write-Error "ERROR: SourceRef muss Entity nutzen, nicht Source in $($file.FullName)"
+              exit 1
+            }
+          }
+
+      - name: Check no filterConfig
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION\**\visual.json" -Recurse
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -match '"filterConfig"') {
+              Write-Error "ERROR: filterConfig verboten in $($file.FullName)"
+              exit 1
+            }
+          }
+
+      - name: Check no prototypeQuery
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION\**\visual.json" -Recurse
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -match '"prototypeQuery"') {
+              Write-Error "ERROR: prototypeQuery verboten in $($file.FullName)"
+              exit 1
+            }
+          }
+
+  validate-completeness:
+    name: 'CHECK 6: File Completeness'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check pages.json exists
+        shell: pwsh
+        run: |
+          # Find all directories that could contain pages.json
+          $found = $false
+          Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "pages.json" -Recurse | ForEach-Object {
+            $found = $true
+          }
+          if (-not $found) {
+            Write-Warning "pages.json nicht in Templates gefunden (OK bei leerem Projekt)"
+          }
+
+      - name: Check .platform files
+        shell: pwsh
+        run: |
+          $platform_count = (Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter ".platform" -Recurse).Count
+          if ($platform_count -eq 0) {
+            Write-Warning ".platform Dateien nicht vorhanden (normal bei Templates)"
+          }
+
+  tmdl-validation:
+    name: 'CHECK 7: TMDL Field Validation'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Validate TMDL fields in visual.json
+        run: |
+          python POWER_BI_PBIP_AUTOMATION/05_AUTOMATION_SCRIPTS/validate-visuals.py
+        continue-on-error: false
+
+  summary:
+    name: 'Validation Summary'
+    runs-on: ubuntu-latest
+    needs: [validate-json, validate-schema, validate-patterns, validate-completeness, tmdl-validation]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.validate-json.result }}" != "success" ] || \
+             [ "${{ needs.validate-schema.result }}" != "success" ] || \
+             [ "${{ needs.validate-patterns.result }}" != "success" ] || \
+             [ "${{ needs.validate-completeness.result }}" != "success" ] || \
+             [ "${{ needs.tmdl-validation.result }}" != "success" ]; then
+            echo "❌ VALIDATION FAILED"
+            exit 1
+          else
+            echo "✅ ALL CHECKS PASSED"
+          fi
