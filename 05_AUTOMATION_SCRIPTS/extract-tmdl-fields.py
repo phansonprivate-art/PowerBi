@@ -63,7 +63,7 @@ Example:
     
     args = parser.parse_args()
     
-    tmdl_path = Path(args.tmdl_folder)
+    tmdl_path = Path(args.tmdl_path)
     if not tmdl_path.exists():
         print(f"❌ ERROR: Path does not exist: {tmdl_path}")
         return False

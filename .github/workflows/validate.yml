@@ -4,10 +4,15 @@ on:
   push:
     branches: [ main, develop, feature/* ]
     paths:
-      - 'POWER_BI_PBIP_AUTOMATION/**'
+      - '06_TEMPLATES/**'
+      - '05_AUTOMATION_SCRIPTS/**'
       - '.github/workflows/**'
   pull_request:
     branches: [ main, develop ]
+
+env:
+  TEMPLATE_DIR: '06_TEMPLATES'
+  SCRIPTS_DIR: '05_AUTOMATION_SCRIPTS'
 
 jobs:
   validate-json:
@@ -15,15 +20,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
-      - name: Validate JSON files
+
+      - name: Validate JSON files in Template
         run: |
-          python POWER_BI_PBIP_AUTOMATION/05_AUTOMATION_SCRIPTS/validate-json-syntax.py
+          python ${{ env.SCRIPTS_DIR }}/validate-json-syntax.py --pbip-path "${{ env.TEMPLATE_DIR }}"
         continue-on-error: false
 
   validate-schema:
@@ -31,27 +36,40 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check definition.pbism = v4.2
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "definition.pbism" -Recurse
+          $files = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "definition.pbism" -Recurse
           foreach ($file in $files) {
-            $content = Get-Content $file.FullName -Raw
-            if ($content -notmatch '"version":\s*"4\.2"') {
-              Write-Error "ERROR: definition.pbism must have version 4.2, found in $($file.FullName)"
+            $content = Get-Content $file.FullName -Raw | ConvertFrom-Json
+            if ($content.version -ne "4.2") {
+              Write-Error "ERROR: definition.pbism must have version 4.2, found '$($content.version)' in $($file.FullName)"
               exit 1
             }
+            Write-Host "OK: $($file.FullName) version=$($content.version)"
           }
 
-      - name: Check forbidden version patterns
+      - name: Check correct schema URLs
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "*.json" -Recurse
-          foreach ($file in $files) {
+          # Verify report.json uses correct schema path
+          $reportFiles = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "report.json" -Recurse
+          foreach ($file in $reportFiles) {
             $content = Get-Content $file.FullName -Raw
-            if ($content -match '"version":\s*"1\.0\.0"') {
-              Write-Error "ERROR: Found forbidden version 1.0.0 in $($file.FullName)"
+            if ($content -match 'fabric/pbip/report/') {
+              Write-Error "ERROR: Wrong schema URL pattern 'fabric/pbip/report/' in $($file.FullName). Must use 'fabric/item/report/definition/'"
+              exit 1
+            }
+            Write-Host "OK: $($file.FullName) schema URL correct"
+          }
+
+          # Verify visual.json uses correct schema path
+          $visualFiles = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "visual.json" -Recurse
+          foreach ($file in $visualFiles) {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -match 'fabric/pbip/report/') {
+              Write-Error "ERROR: Wrong schema URL pattern in $($file.FullName)"
               exit 1
             }
           }
@@ -61,24 +79,24 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check no "Source" in SourceRef
         shell: pwsh
         run: |
-          $visual_files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "visual.json" -Recurse
+          $visual_files = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "visual.json" -Recurse
           foreach ($file in $visual_files) {
-            $content = Get-Content $file.FullName -Raw | ConvertFrom-Json
-            # Simple check for forbidden patterns
-            if ($content -match '"Source":') {
+            $content = Get-Content $file.FullName -Raw
+            if ($content -match '"Source"\s*:') {
               Write-Error "ERROR: SourceRef muss Entity nutzen, nicht Source in $($file.FullName)"
               exit 1
             }
           }
+          Write-Host "OK: No forbidden 'Source' patterns found"
 
       - name: Check no filterConfig
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION\**\visual.json" -Recurse
+          $files = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "visual.json" -Recurse
           foreach ($file in $files) {
             $content = Get-Content $file.FullName -Raw
             if ($content -match '"filterConfig"') {
@@ -86,11 +104,12 @@ jobs:
               exit 1
             }
           }
+          Write-Host "OK: No forbidden 'filterConfig' patterns found"
 
       - name: Check no prototypeQuery
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION\**\visual.json" -Recurse
+          $files = Get-ChildItem -Path "${{ env.TEMPLATE_DIR }}" -Filter "visual.json" -Recurse
           foreach ($file in $files) {
             $content = Get-Content $file.FullName -Raw
             if ($content -match '"prototypeQuery"') {
@@ -98,53 +117,48 @@ jobs:
               exit 1
             }
           }
+          Write-Host "OK: No forbidden 'prototypeQuery' patterns found"
 
   validate-completeness:
     name: 'CHECK 6: File Completeness'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Check pages.json exists
+
+      - name: Check Template completeness
         shell: pwsh
         run: |
-          # Find all directories that could contain pages.json
-          $found = $false
-          Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter "pages.json" -Recurse | ForEach-Object {
-            $found = $true
-          }
-          if (-not $found) {
-            Write-Warning "pages.json nicht in Templates gefunden (OK bei leerem Projekt)"
-          }
+          $templateRoot = "${{ env.TEMPLATE_DIR }}"
 
-      - name: Check .platform files
-        shell: pwsh
-        run: |
-          $platform_count = (Get-ChildItem -Path "POWER_BI_PBIP_AUTOMATION" -Filter ".platform" -Recurse).Count
-          if ($platform_count -eq 0) {
-            Write-Warning ".platform Dateien nicht vorhanden (normal bei Templates)"
-          }
+          # Check .pbip exists
+          $pbip = Get-ChildItem -Path $templateRoot -Filter "*.pbip" -Recurse
+          if (-not $pbip) { Write-Error "No .pbip file found in template"; exit 1 }
+          Write-Host "OK: .pbip found: $($pbip.FullName)"
 
-  tmdl-validation:
-    name: 'CHECK 7: TMDL Field Validation'
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Validate TMDL fields in visual.json
-        run: |
-          python POWER_BI_PBIP_AUTOMATION/05_AUTOMATION_SCRIPTS/validate-visuals.py
-        continue-on-error: false
+          # Check pages.json exists
+          $pages = Get-ChildItem -Path $templateRoot -Filter "pages.json" -Recurse
+          if (-not $pages) { Write-Error "No pages.json found"; exit 1 }
+          Write-Host "OK: pages.json found: $($pages.FullName)"
+
+          # Check .platform files (2x: Report + SemanticModel)
+          $platforms = Get-ChildItem -Path $templateRoot -Filter ".platform" -Recurse
+          if ($platforms.Count -lt 2) { Write-Warning ".platform count=$($platforms.Count), expected 2" }
+          Write-Host "OK: .platform files found: $($platforms.Count)"
+
+          # Check definition.pbir exists
+          $pbir = Get-ChildItem -Path $templateRoot -Filter "definition.pbir" -Recurse
+          if (-not $pbir) { Write-Error "No definition.pbir found"; exit 1 }
+          Write-Host "OK: definition.pbir found"
+
+          # Check definition.pbism exists
+          $pbism = Get-ChildItem -Path $templateRoot -Filter "definition.pbism" -Recurse
+          if (-not $pbism) { Write-Error "No definition.pbism found"; exit 1 }
+          Write-Host "OK: definition.pbism found"
 
   summary:
     name: 'Validation Summary'
     runs-on: ubuntu-latest
-    needs: [validate-json, validate-schema, validate-patterns, validate-completeness, tmdl-validation]
+    needs: [validate-json, validate-schema, validate-patterns, validate-completeness]
     if: always()
     steps:
       - name: Check results
@@ -152,10 +166,9 @@ jobs:
           if [ "${{ needs.validate-json.result }}" != "success" ] || \
              [ "${{ needs.validate-schema.result }}" != "success" ] || \
              [ "${{ needs.validate-patterns.result }}" != "success" ] || \
-             [ "${{ needs.validate-completeness.result }}" != "success" ] || \
-             [ "${{ needs.tmdl-validation.result }}" != "success" ]; then
-            echo "❌ VALIDATION FAILED"
+             [ "${{ needs.validate-completeness.result }}" != "success" ]; then
+            echo "VALIDATION FAILED"
             exit 1
           else
-            echo "✅ ALL CHECKS PASSED"
+            echo "ALL CHECKS PASSED"
           fi

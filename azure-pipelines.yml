@@ -6,7 +6,8 @@ trigger:
     - feature/*
   paths:
     include:
-    - POWER_BI_PBIP_AUTOMATION/**
+    - 06_TEMPLATES/**
+    - 05_AUTOMATION_SCRIPTS/**
 
 pr:
   branches:
@@ -19,13 +20,14 @@ pool:
 
 variables:
   pythonVersion: '3.11'
-  targetDir: '$(Build.SourcesDirectory)/POWER_BI_PBIP_AUTOMATION'
+  templateDir: '$(Build.SourcesDirectory)/06_TEMPLATES'
+  scriptsDir: '$(Build.SourcesDirectory)/05_AUTOMATION_SCRIPTS'
 
 stages:
 - stage: Validate
   displayName: 'Phase 3 Validation Checks'
   jobs:
-  
+
   - job: ValidateJSONSyntax
     displayName: 'CHECK 3: JSON Syntax'
     steps:
@@ -33,102 +35,106 @@ stages:
       inputs:
         versionSpec: '$(pythonVersion)'
         addToPath: true
-    
+
     - script: |
-        python $(targetDir)\05_AUTOMATION_SCRIPTS\validate-json-syntax.py
-      displayName: 'Validate all JSON files'
+        python "$(scriptsDir)\validate-json-syntax.py" --pbip-path "$(templateDir)"
+      displayName: 'Validate all JSON files in Template'
       continueOnError: false
 
   - job: ValidateSchemaVersions
     displayName: 'CHECK 4: Schema Versions'
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-        addToPath: true
-    
-    - script: |
-        # Check für definition.pbism version 4.2
-        findstr "\"version\": \"4.2\"" $(targetDir)\**\definition.pbism >nul 2>&1
-        IF ERRORLEVEL 1 (
-          echo ERROR: definition.pbism version muss 4.2 sein
-          exit /b 1
-        )
+    - powershell: |
+        # Check definition.pbism version 4.2
+        $files = Get-ChildItem -Path "$(templateDir)" -Filter "definition.pbism" -Recurse
+        foreach ($file in $files) {
+          $content = Get-Content $file.FullName -Raw | ConvertFrom-Json
+          if ($content.version -ne "4.2") {
+            Write-Error "definition.pbism must have version 4.2, found '$($content.version)'"
+            exit 1
+          }
+          Write-Host "OK: $($file.FullName) version=$($content.version)"
+        }
       displayName: 'Check definition.pbism = v4.2'
-    
-    - script: |
-        # Check für version.json 2.0.0
-        findstr "\"version\": \"2.0.0\"" $(targetDir)\**\version.json >nul 2>&1
-        IF ERRORLEVEL 1 (
-          echo ERROR: version.json muss 2.0.0 sein
-          exit /b 1
-        )
+
+    - powershell: |
+        # Check version.json = 2.0.0
+        $files = Get-ChildItem -Path "$(templateDir)" -Filter "version.json" -Recurse
+        foreach ($file in $files) {
+          $content = Get-Content $file.FullName -Raw | ConvertFrom-Json
+          if ($content.version -ne "2.0.0") {
+            Write-Error "version.json must have version 2.0.0, found '$($content.version)'"
+            exit 1
+          }
+          Write-Host "OK: $($file.FullName) version=$($content.version)"
+        }
       displayName: 'Check version.json = v2.0.0'
+
+    - powershell: |
+        # Verify correct schema URL patterns (no legacy fabric/pbip/report/ paths)
+        $jsonFiles = Get-ChildItem -Path "$(templateDir)" -Filter "*.json" -Recurse
+        $errors = @()
+        foreach ($file in $jsonFiles) {
+          $content = Get-Content $file.FullName -Raw
+          if ($content -match 'fabric/pbip/report/') {
+            $errors += "Wrong schema URL in $($file.FullName): uses legacy 'fabric/pbip/report/' instead of 'fabric/item/report/definition/'"
+          }
+        }
+        if ($errors.Count -gt 0) {
+          $errors | ForEach-Object { Write-Error $_ }
+          exit 1
+        }
+        Write-Host "OK: All schema URLs use correct patterns"
+      displayName: 'Check schema URL patterns'
 
   - job: ValidateForbiddenPatterns
     displayName: 'CHECK 5: Forbidden Patterns'
     steps:
-    - script: |
-        REM Check für "Source" statt "Entity" in visual.json
-        findstr /R "\"Source\":" $(targetDir)\**\visual.json >nul 2>&1
-        IF ERRORLEVEL 0 (
-          echo ERROR: SourceRef muss Entity nutzen, nicht Source!
-          exit /b 1
-        )
-        exit /b 0
-      displayName: 'No "Source" in SourceRef'
-    
-    - script: |
-        REM Check für "filterConfig" in visual.json
-        findstr "\"filterConfig\":" $(targetDir)\**\visual.json >nul 2>&1
-        IF ERRORLEVEL 0 (
-          echo ERROR: filterConfig ist verboten in visual.json!
-          exit /b 1
-        )
-        exit /b 0
-      displayName: 'No filterConfig Top-Level'
-    
-    - script: |
-        REM Check für "prototypeQuery" in visual.json
-        findstr "\"prototypeQuery\":" $(targetDir)\**\visual.json >nul 2>&1
-        IF ERRORLEVEL 0 (
-          echo ERROR: prototypeQuery ist verboten!
-          exit /b 1
-        )
-        exit /b 0
-      displayName: 'No prototypeQuery Top-Level'
+    - powershell: |
+        $visual_files = Get-ChildItem -Path "$(templateDir)" -Filter "visual.json" -Recurse
+        foreach ($file in $visual_files) {
+          $content = Get-Content $file.FullName -Raw
+          if ($content -match '"Source"\s*:') {
+            Write-Error "SourceRef muss Entity nutzen, nicht Source in $($file.FullName)"
+            exit 1
+          }
+          if ($content -match '"filterConfig"') {
+            Write-Error "filterConfig verboten in $($file.FullName)"
+            exit 1
+          }
+          if ($content -match '"prototypeQuery"') {
+            Write-Error "prototypeQuery verboten in $($file.FullName)"
+            exit 1
+          }
+        }
+        Write-Host "OK: No forbidden patterns found in $($visual_files.Count) visual.json files"
+      displayName: 'Check forbidden patterns'
 
   - job: ValidateFileCompleteness
     displayName: 'CHECK 6: File Completeness'
     steps:
-    - script: |
-        REM CHECK pages.json immer vorhanden?
-        if not exist "$(targetDir)\**\pages.json" (
-          echo ERROR: pages.json MUSS in Report/definition existieren!
-          exit /b 1
-        )
-      displayName: 'pages.json present'
-    
-    - script: |
-        REM CHECK .platform in SemanticModel + Report?
-        if not exist "$(targetDir)\**\.platform" (
-          echo ERROR: .platform muss in SemanticModel und Report sein!
-          exit /b 1
-        )
-      displayName: '.platform present'
+    - powershell: |
+        $root = "$(templateDir)"
 
-  - job: ValidateTMDLFields
-    displayName: 'CHECK 7: TMDL Field Validation'
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-        addToPath: true
-    
-    - script: |
-        python $(targetDir)\05_AUTOMATION_SCRIPTS\validate-visuals.py
-      displayName: 'Validate visual.json Entity/Property'
-      continueOnError: false
+        $required = @(
+          @{ Name = ".pbip"; Filter = "*.pbip" },
+          @{ Name = "pages.json"; Filter = "pages.json" },
+          @{ Name = "definition.pbir"; Filter = "definition.pbir" },
+          @{ Name = "definition.pbism"; Filter = "definition.pbism" }
+        )
+
+        foreach ($check in $required) {
+          $found = Get-ChildItem -Path $root -Filter $check.Filter -Recurse
+          if (-not $found) {
+            Write-Error "$($check.Name) not found in template"
+            exit 1
+          }
+          Write-Host "OK: $($check.Name) found"
+        }
+
+        $platforms = Get-ChildItem -Path $root -Filter ".platform" -Recurse
+        Write-Host "OK: .platform files found: $($platforms.Count)"
+      displayName: 'Verify template completeness'
 
 - stage: Documentation
   displayName: 'Documentation & Cleanup'

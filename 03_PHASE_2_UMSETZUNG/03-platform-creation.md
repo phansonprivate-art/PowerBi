@@ -1,16 +1,22 @@
 # PHASE 2: SCHRITT 5B – PBIP Dateistruktur erstellen
 
+## Quelle: Template aus `06_TEMPLATES/`
+
+> Alle Schema-URLs und Dateiinhalte unten sind direkt aus dem funktionierenden Template abgeleitet.
+> Bei Unsicherheit: Datei direkt aus `06_TEMPLATES/` kopieren und Projektnamen anpassen.
+
 ## REIHENFOLGE IST BINDEND:
 
 ```
-1. .platform (SemanticModel)
-2. definition.pbism
-3. .pbip ROOT Datei
-4. .platform (Report)
-5. Report Dateien (definition.pbir, version.json, etc.)
-6. pages.json
-7. page.json pro Seite
-8. visual.json pro Visual
+1. .platform (SemanticModel)  — aus Template kopieren + anpassen
+2. definition.pbism            — aus Template kopieren
+3. .pbip ROOT Datei            — aus Template kopieren + Pfad anpassen
+4. .platform (Report)          — aus Template kopieren + anpassen
+5. definition.pbir             — aus Template kopieren + Pfad anpassen
+6. Report Dateien (version.json, report.json)
+7. pages.json
+8. page.json pro Seite
+9. visual.json pro Visual
 ```
 
 ---
@@ -21,12 +27,20 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/semanticModel/platformProperties/2.0.0/schema.json",
-  "version": "1.0"
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "{PROJEKTNAME}"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "{NEUE-UUID-GENERIEREN}"
+  }
 }
 ```
 
-✅ **Speichen als:** `.platform` (KEIN `.json` Suffix!)
+> Speichern als: `.platform` (KEIN `.json` Suffix!)
+> UUID generieren mit: `[guid]::NewGuid().ToString()` (PowerShell) oder `uuid.uuid4()` (Python)
 
 ---
 
@@ -36,23 +50,13 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/model/definitionProperties/1.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json",
   "version": "4.2",
-  "settings": {},
-  "name": "{PROJEKTNAME}",
-  "description": "Semantic Model für {PROJEKTNAME}",
-  "collation": "de-DE",
-  "language": 1031,
-  "cultures": [
-    {
-      "name": "de-DE",
-      "displayName": "Deutsch"
-    }
-  ]
+  "settings": {}
 }
 ```
 
-**⚠️MUSS:**
+**MUSS:**
 - `"version": "4.2"` (nicht `"1.0.0"`)
 - `"settings": {}` vorhanden
 
@@ -64,32 +68,44 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbip/1.0.0/schema.json",
-  "version": "3.0",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json",
+  "version": "1.0",
   "artifacts": [
     {
       "report": {
         "path": "{PROJEKTNAME}.Report"
       }
     }
-  ]
+  ],
+  "settings": {
+    "enableAutoRecovery": true
+  }
 }
 ```
 
-**⚠️ NIEMALS:**
-- ❌ `"semanticModel"` in artifacts!
-- ❌ Nur **Report** Referenz!
+**NIEMALS:**
+- `"semanticModel"` in artifacts!
+- Nur **Report** Referenz!
+- Schema ist `pbipProperties` (nicht `pbip`)!
+- Version ist `"1.0"` (nicht `"3.0"`)!
 
 ---
 
 ## D) .platform (Report)
 
-**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\.platform`
+**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\.platform`
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/platformProperties/2.0.0/schema.json",
-  "version": "1.0"
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "{PROJEKTNAME}"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "{NEUE-UUID-GENERIEREN}"
+  }
 }
 ```
 
@@ -101,8 +117,13 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/definitionProperties/2.0.0/schema.json",
-  "version": "4.0"
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../{PROJEKTNAME}.SemanticModel"
+    }
+  }
 }
 ```
 
@@ -114,7 +135,7 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/versionMetadata/1.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json",
   "version": "2.0.0"
 }
 ```
@@ -125,31 +146,42 @@
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\report.json`
 
-(Von Template kopieren oder):
+Am besten direkt aus Template kopieren. Minimal-Version:
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/report/3.0.0/schema.json",
-  "id": "UUID-oder-random-string",
-  "displayName": "{PROJEKTNAME}",
-  "description": ""
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.2.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY26SU02",
+      "reportVersionAtImport": {
+        "visual": "2.6.0",
+        "report": "3.1.0",
+        "page": "2.3.0"
+      },
+      "type": "SharedResources"
+    }
+  }
 }
 ```
+
+> `themeCollection` ist PFLICHT.
+> `resourcePackages` + `settings` + `objects` aus Template übernehmen für volle Funktionalität.
 
 ---
 
 ## H) pages.json (PFLICHT!)
 
-**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages.json`
+**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages\pages.json`
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/pagesMetadata/1.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
   "pageOrder": [
-    "Page_Overview",
-    "Page_Details",
-    "Page_RawData"
-  ]
+    "{pageId1}",
+    "{pageId2}"
+  ],
+  "activePageName": "{pageId1}"
 }
 ```
 
@@ -157,17 +189,7 @@
 
 ---
 
-## I) .relationships (Empty)
-
-**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\.relationships`
-
-```json
-[]
-```
-
----
-
-## J) Ordnerstruktur für Pages
+## I) Ordnerstruktur für Pages
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages\`
 
@@ -175,37 +197,41 @@ Pro Seite ein Ordner:
 
 ```
 pages/
-├── Page_Overview/
+├── pages.json
+├── {pageId1}/
 │   ├── page.json
 │   └── visuals/
-│       ├── Visual_Sales_Card/
+│       ├── {visualId1}/
 │       │   └── visual.json
-│       ├── Visual_Sales_Chart/
-│       │   └── visual.json
-│       └── Visual_Sales_Table/
+│       └── {visualId2}/
 │           └── visual.json
-├── Page_Details/
-│   ├── page.json
-│   └── visuals/
-│       ├── Visual_Breakdown/
-│       │   └── visual.json
-│       └── ...
-└── Page_RawData/
+└── {pageId2}/
     ├── page.json
     └── visuals/
-        └── Visual_Raw_Table/
+        └── {visualId3}/
             └── visual.json
 ```
+
+---
+
+## J) StaticResources (Theme kopieren!)
+
+**Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\StaticResources\SharedResources\BaseThemes\CY26SU02.json`
+
+> Diese Datei aus dem Template kopieren! Ohne sie fehlt das Base Theme.
 
 ---
 
 ## Checkliste Dateistruktur
 
 - [ ] .pbip ROOT hat NUR "report" in artifacts?
+- [ ] .pbip Schema = `pbipProperties/1.0.0` (NICHT `pbip/1.0.0`)?
 - [ ] definition.pbism version = "4.2"?
-- [ ] Alle .platform Dateien vorhanden (2x)?
+- [ ] definition.pbism Schema = `item/semanticModel/definitionProperties/1.0.0`?
+- [ ] Beide .platform Dateien vorhanden mit `gitIntegration/platformProperties/2.0.0`?
+- [ ] definition.pbir Schema = `item/report/definitionProperties/2.0.0`?
 - [ ] pages.json pageOrder = Alle Seiten?
 - [ ] Seiten-Ordner entsprechen pageOrder Namen?
-- [ ] .relationships existiert (leer)?
+- [ ] CY26SU02.json Theme kopiert?
 
-**→ Wenn alle Strukturen vorhanden, dann zu SCHRITT 6: Report Content**
+**Wenn alle Strukturen vorhanden, dann zu SCHRITT 6: Report Content**

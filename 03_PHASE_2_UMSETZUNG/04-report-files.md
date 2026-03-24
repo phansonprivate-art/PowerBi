@@ -8,54 +8,23 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/page/2.1.0/schema.json",
-  "name": "Page_Overview",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "{PageID}",
   "displayName": "Übersicht",
   "displayOption": "FitToPage",
-  "visualContainers": [
-    {
-      "x": 0,
-      "y": 0,
-      "width": 320,
-      "height": 180,
-      "z": 1000,
-      "name": "Visual_Sales_Card",
-      "isVisible": true
-    },
-    {
-      "x": 320,
-      "y": 0,
-      "width": 80,
-      "height": 180,
-      "z": 1001,
-      "name": "Visual_Sales_Chart",
-      "isVisible": true
-    }
-  ],
+  "height": 1080,
+  "width": 1920,
   "objects": {
     "background": [
       {
         "properties": {
-          "fill": {
-            "solid": {
-              "color": {
-                "value": "#FFFFFF"
-              }
+          "image": {
+            "image": {
+              "name": { "expr": { "Literal": { "Value": "''" } } },
+              "url": { "expr": { "Literal": { "Value": "''" } } }
             }
-          }
-        }
-      }
-    ],
-    "outspace": [
-      {
-        "properties": {
-          "fill": {
-            "solid": {
-              "color": {
-                "value": "#F2F2F2"
-              }
-            }
-          }
+          },
+          "transparency": { "expr": { "Literal": { "Value": "0D" } } }
         }
       }
     ]
@@ -64,12 +33,15 @@
 ```
 
 ### Wichtig:
-- ✅ `displayOption`: "FitToPage"
-- ✅ `visualContainers`: Name muss visuellen Ordnernamen entsprechen
-- ✅ `x, y, width, height, z`: Aus Template übernehmen
-- ❌ KEIN `"ordinal"` Top-Level
-- ❌ KEIN `"filters"` Top-Level
-- ❌ KEIN `"config"` Top-Level
+- `name` = Ordnername (PFLICHT!)
+- `displayOption`: "FitToPage"
+- `height` + `width`: PFLICHT wenn displayOption != "Dynamic"
+- `objects`: Aus Template übernehmen
+- KEIN `visualContainers` (VERBOTEN in PBIR Enhanced!)
+- KEIN `version` Top-Level
+- KEIN `ordinal` Top-Level
+- KEIN `filters` Top-Level
+- KEIN `config` Top-Level
 
 ---
 
@@ -77,63 +49,64 @@
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages\{PageID}\visuals\{VisualID}\visual.json`
 
-### Beispiel: Table Visual mit TMDL Feldnamen
+### PBIR Enhanced Format Struktur:
+
+In PBIR Enhanced Format hat `visual.json` eine strikte Struktur:
+- **Root-Ebene**: `$schema`, `name`, `position`, `visual`
+- **`visual` Sub-Objekt**: `visualType`, `objects`, `drillFilterOtherVisuals`
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
-  "name": "Visual_Sales_Table",
-  "visual": {
-    "visualType": "table",
-    "objects": {},
-    "dataRoles": [
-      {
-        "name": "Values",
-        "displayName": "Werte",
-        "kind": "GroupingHorizontal"
-      }
-    ]
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "{VisualID}",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 1000,
+    "height": 180,
+    "width": 320,
+    "tabOrder": 0
   },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Kalender"
-                      },
-                      "Property": "Jahr"
-                    }
-                  },
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Produkt"
-                      },
-                      "Property": "Kategorie"
-                    }
-                  },
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
+  "visual": {
+    "visualType": "slicer",
+    "objects": {},
+    "drillFilterOtherVisuals": true
+  }
+}
+```
+
+### Beispiel: Slicer (Dropdown)
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "abc123def456",
+  "position": {
+    "x": 24.8,
+    "y": 551.5,
+    "z": 17000,
+    "height": 75.9,
+    "width": 208.6,
+    "tabOrder": 13000
+  },
+  "visual": {
+    "visualType": "slicer",
+    "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Dropdown'"
+                }
               }
-            ]
+            }
           }
         }
-      }
-    ]
+      ]
+    },
+    "drillFilterOtherVisuals": true
   }
 }
 ```
@@ -142,8 +115,15 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
-  "name": "Visual_Sales_Card",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "card_umsatz_01",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 1000,
+    "height": 180,
+    "width": 320
+  },
   "visual": {
     "visualType": "card",
     "objects": {
@@ -151,172 +131,51 @@
         {
           "properties": {
             "textSize": {
-              "value": 28
+              "expr": {
+                "Literal": {
+                  "Value": "28D"
+                }
+              }
             }
           }
         }
       ]
     }
-  },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      }
-    ]
-  }
-}
-```
-
-### Beispiel: Bar Chart (Dimension + Measure)
-
-```json
-{
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
-  "name": "Visual_Sales_Chart",
-  "visual": {
-    "visualType": "barChart",
-    "objects": {
-      "categoryAxis": [
-        {
-          "properties": {
-            "show": {
-              "value": true
-            }
-          }
-        }
-      ]
-    }
-  },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Produkt"
-                      },
-                      "Property": "Kategorie"
-                    }
-                  }
-                ]
-              },
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      }
-    ]
   }
 }
 ```
 
 ---
 
-### ⚠️ KRITISCHE REGELN FÜR visual.json
+### KRITISCHE REGELN FÜR visual.json (PBIR Enhanced)
 
-| Regel | ✅ Richtig | ❌ Falsch |
-|-------|-----------|----------|
+| Regel | Richtig | Falsch |
+|-------|---------|--------|
+| **Schema** | `item/report/definition/visualContainer/2.7.0` | `pbip/report/visualContainer/...` |
+| **Root-Ebene** | Nur `$schema`, `name`, `position`, `visual` | `displayName`, `config`, `dataRoles`, `query` |
+| **`visual` Sub-Objekt** | `visualType`, `objects`, `drillFilterOtherVisuals` | `displayName`, `config`, `visualMapping` |
+| **`name`** | = Ordnername (PFLICHT) | Fehlend |
+| **`position`** | Root-Ebene mit x,y,z,height,width | In `visual` Sub-Objekt |
 | **Entity** | `"Entity": "DIM_Kalender"` | `"Source": "..."` |
 | **Property** | Aus TMDL-Feldliste | Von MCP erfunden |
-| **query** | `"queryState": [...]` | `"prototypeQuery"` |
-| **Top-Level** | ❌ Kein `"filters"` | ✅ In `queryState` |
-| **SourceRef** | IMMER vorhanden | Darf nie fehlen |
-| **Measure Ref** | `"Entity": "_Measures"` + `"Property": "Umsatz"` | Direkt als String |
 
----
-
-## Automatische Generation (Python)
-
-```python
-def generate_table_visual(visual_id, fields_from_tmdl):
-    """
-    Generiert visual.json aus TMDL-Feldliste
-    fields_from_tmdl = {
-        "entity": "DIM_Kalender",
-        "properties": ["Jahr", "Quartal"]
-    }
-    """
-    
-    projections = []
-    for prop in fields_from_tmdl["properties"]:
-        projections.append({
-            "Expression": {
-                "SourceRef": {
-                    "Entity": fields_from_tmdl["entity"]
-                },
-                "Property": prop
-            }
-        })
-    
-    return {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
-        "name": visual_id,
-        "visual": {
-            "visualType": "table",
-            "objects": {},
-            "dataRoles": [{"name": "Values", "displayName": "Werte", "kind": "GroupingHorizontal"}]
-        },
-        "query": {
-            "queryState": [{
-                "Command": "SetBindingRef",
-                "Binding": {
-                    "Primary": {
-                        "Groupings": [{
-                            "Projections": projections
-                        }]
-                    }
-                }
-            }]
-        }
-    }
-```
+> **PBIR Enhanced Format**: Visuals haben KEINE `query`, `dataRoles`, `visualMapping` oder `config` Properties!
+> Data Binding wird über die PBI Desktop UI konfiguriert, nicht über visual.json.
+> `visual.json` definiert nur: Position, Typ, Formatierung (objects).
 
 ---
 
 ## Checkliste page.json & visual.json
 
-- [ ] Alle page.json Dateien für jede Seite vorhanden?
-- [ ] visual.json in korrekten Ordnern?
-- [ ] SourceRef nutzt "Entity" (nicht "Source")?
-- [ ] Property-Werte alle aus TMDL-Feldliste?
-- [ ] Keine Top-Level "filters" oder "filterConfig"?
-- [ ] query nur "queryState" (keine "prototypeQuery")?
+- [ ] page.json Schema = `item/report/definition/page/2.1.0`?
+- [ ] page.json hat `name` = Ordnername?
+- [ ] page.json hat `width` + `height`?
+- [ ] page.json hat KEIN `visualContainers`?
+- [ ] visual.json Schema = `item/report/definition/visualContainer/2.7.0`?
+- [ ] visual.json hat `name` = Ordnername?
+- [ ] visual.json hat `position` auf Root-Ebene?
+- [ ] visual.json hat `visual.visualType`?
+- [ ] visual.json hat KEINE verbotenen Root-Properties?
 - [ ] Alle visual.json JSON-valid?
 
-**→ Wenn all PASS, zu PHASE 3: Validierung**
+**Wenn all PASS, zu PHASE 3: Validierung**
