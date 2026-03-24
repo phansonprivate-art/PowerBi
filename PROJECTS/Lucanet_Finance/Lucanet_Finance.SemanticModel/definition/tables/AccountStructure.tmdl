@@ -1,0 +1,84 @@
+table AccountStructure
+	lineageTag: d2ebbf8b-e828-4099-bed5-c04157599f75
+
+	column AccountLevel1
+		dataType: string
+		lineageTag: 1af8469f-7d1f-4acb-847f-5ca7f81947d0
+		summarizeBy: none
+		sourceColumn: AccountLevel1
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountLevel2
+		dataType: string
+		lineageTag: ccf0e632-3557-434c-beae-62c2d20ac110
+		summarizeBy: none
+		sourceColumn: AccountLevel2
+		sortByColumn: AccountLevel2CI
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountLevel3
+		dataType: string
+		lineageTag: 5e02e01f-0649-4aab-a3e5-4e75f2111511
+		summarizeBy: none
+		sourceColumn: AccountLevel3
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountLevel4
+		dataType: string
+		lineageTag: da47c58f-cc6a-411a-8969-701aee29db7b
+		summarizeBy: none
+		sourceColumn: AccountLevel4
+
+		annotation SummarizationSetBy = Automatic
+
+	column BalanceType
+		dataType: string
+		lineageTag: e149b4e0-2ab7-416d-b03d-8b29d9deeee5
+		summarizeBy: none
+		sourceColumn: BalanceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReportElementID
+		dataType: int64
+		formatString: 0
+		lineageTag: 5d0063e3-d5a2-4ff6-9f08-2fb91dcccf6c
+		summarizeBy: none
+		sourceColumn: ReportElementID
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountLevel2CI
+		dataType: int64
+		formatString: 0
+		lineageTag: ed1de5fc-ecbc-44f0-98ae-0c3a649cf3f1
+		summarizeBy: none
+		sourceColumn: AccountLevel2CI
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountLevel3CI
+		dataType: int64
+		formatString: 0
+		lineageTag: 43803d3a-a9ea-4624-9632-8ea6d292d30e
+		summarizeBy: none
+		sourceColumn: AccountLevel3CI
+
+		annotation SummarizationSetBy = Automatic
+
+	partition AccountStructure = m
+		mode: import
+		source =
+				let
+				    Quelle = Sql.Database("wpjs2jmuaomupiax5ffbonab5m-2kdl77zj64pe7a6plcs44cjfla.datawarehouse.fabric.microsoft.com", "lh_2_lucanet"),
+				    dbo_AccountStructure = Quelle{[Schema="dbo",Item="AccountStructure"]}[Data]
+				in
+				    dbo_AccountStructure
+
+	annotation PBI_ResultType = Table
+

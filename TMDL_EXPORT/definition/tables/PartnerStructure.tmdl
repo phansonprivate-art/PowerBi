@@ -1,0 +1,179 @@
+table PartnerStructure
+	lineageTag: 97d972ea-f9a3-4d0e-a491-d76be22fa2d3
+
+	column PartnerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 78d8278d-9ead-48fb-9998-d81e52c4bc1a
+		summarizeBy: none
+		sourceColumn: PartnerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerName
+		dataType: string
+		lineageTag: 26c7ee71-2532-4552-8810-8f4861d807e1
+		summarizeBy: none
+		sourceColumn: PartnerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChildIndex
+		dataType: int64
+		formatString: 0
+		lineageTag: 6276d807-64c3-4da2-a4bc-77dbc2082a33
+		summarizeBy: none
+		sourceColumn: ChildIndex
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsDefaultPartner
+		dataType: int64
+		formatString: 0
+		lineageTag: 6bab2230-e9fe-4b89-bfcb-bdd98ff005eb
+		summarizeBy: none
+		sourceColumn: IsDefaultPartner
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel1ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 732465f9-a9b5-4afc-b99e-11964ce51ace
+		summarizeBy: none
+		sourceColumn: PartnerLevel1ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel1
+		dataType: string
+		lineageTag: 1fc8c710-8a11-46c2-bb20-f0d8d363c096
+		summarizeBy: none
+		sourceColumn: PartnerLevel1
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel1CI
+		dataType: int64
+		formatString: 0
+		lineageTag: 9fe3b626-3c29-45ae-97f6-37995c319fb4
+		summarizeBy: none
+		sourceColumn: PartnerLevel1CI
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel2ID
+		dataType: int64
+		formatString: 0
+		lineageTag: ce04bba3-2354-4e7d-8b3d-1e67ae95ed04
+		summarizeBy: none
+		sourceColumn: PartnerLevel2ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel2
+		dataType: string
+		lineageTag: e3b43dba-8e97-4ad7-8c07-b7fac68d5005
+		summarizeBy: none
+		sourceColumn: PartnerLevel2
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel2CI
+		dataType: int64
+		formatString: 0
+		lineageTag: 754e2526-9664-45c9-b95a-52e554c3637c
+		summarizeBy: none
+		sourceColumn: PartnerLevel2CI
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel3ID
+		dataType: int64
+		formatString: 0
+		lineageTag: ae29115d-e7f9-43b4-a665-70fc94de1027
+		summarizeBy: none
+		sourceColumn: PartnerLevel3ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel3
+		dataType: string
+		lineageTag: d0afdb4b-c7b9-477a-82f0-95c55d816e14
+		summarizeBy: none
+		sourceColumn: PartnerLevel3
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel3CI
+		dataType: int64
+		formatString: 0
+		lineageTag: ab30b168-871a-426b-9da8-63c89c2561ff
+		summarizeBy: none
+		sourceColumn: PartnerLevel3CI
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel4ID
+		dataType: int64
+		formatString: 0
+		lineageTag: a7e74595-3815-406a-9f6e-9c9fa88c6319
+		summarizeBy: none
+		sourceColumn: PartnerLevel4ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel4
+		dataType: string
+		lineageTag: 6c079852-ba13-4a15-ac34-401881c54df8
+		summarizeBy: none
+		sourceColumn: PartnerLevel4
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel4CI
+		dataType: int64
+		formatString: 0
+		lineageTag: a901cdc0-8049-4636-8145-360ca685d9cb
+		summarizeBy: none
+		sourceColumn: PartnerLevel4CI
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel5ID
+		dataType: int64
+		formatString: 0
+		lineageTag: f0c38b76-be3b-4502-9ab1-2c38182089c5
+		summarizeBy: none
+		sourceColumn: PartnerLevel5ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel5
+		dataType: string
+		lineageTag: 311f1b30-f32f-45d5-90a9-de5f97ada807
+		summarizeBy: none
+		sourceColumn: PartnerLevel5
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerLevel5CI
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e4e3483-0ac4-4cc8-a6d0-d8490f9a7b76
+		summarizeBy: none
+		sourceColumn: PartnerLevel5CI
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PartnerStructure = m
+		mode: import
+		source =
+				let
+				    Quelle = Sql.Database("wpjs2jmuaomupiax5ffbonab5m-2kdl77zj64pe7a6plcs44cjfla.datawarehouse.fabric.microsoft.com", "lh_2_lucanet"),
+				    dbo_PartnerStructure = Quelle{[Schema="dbo",Item="PartnerStructure"]}[Data]
+				in
+				    dbo_PartnerStructure
+
+	annotation PBI_ResultType = Table
+

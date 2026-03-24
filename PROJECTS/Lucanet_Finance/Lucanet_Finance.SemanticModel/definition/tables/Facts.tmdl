@@ -1,0 +1,108 @@
+table Facts
+	lineageTag: c54d29fc-4699-417f-b88e-baddf7816b78
+
+	column Value
+		dataType: double
+		lineageTag: 1807ab1c-aba6-4d12-afe9-a794b30674b7
+		summarizeBy: sum
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ReportElementID
+		dataType: int64
+		formatString: 0
+		lineageTag: 896296da-56f5-42b5-a404-2610d3c8c2a5
+		summarizeBy: none
+		sourceColumn: ReportElementID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PeriodID
+		dataType: int64
+		formatString: 0
+		lineageTag: f476b855-3258-41e6-abea-6882785922f6
+		summarizeBy: count
+		sourceColumn: PeriodID
+
+		annotation SummarizationSetBy = Automatic
+
+	column StructureTransactionTypeID
+		dataType: string
+		lineageTag: 5701c6da-f2d5-49b7-ba99-c2226f4c9f51
+		summarizeBy: none
+		sourceColumn: StructureTransactionTypeID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrganisationElementID
+		dataType: string
+		lineageTag: fd3ebdb9-3bcd-4f2c-989f-5be33468006c
+		summarizeBy: none
+		sourceColumn: OrganisationElementID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartnerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d119097-67dd-483a-ad30-af4d1c3ff9a1
+		summarizeBy: none
+		sourceColumn: PartnerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataLevelID
+		dataType: int64
+		formatString: 0
+		lineageTag: dbea7c3a-86f0-4dee-8292-3a9e09e5a739
+		summarizeBy: none
+		sourceColumn: DataLevelID
+
+		annotation SummarizationSetBy = Automatic
+
+	column AdjustmentLevelID
+		dataType: string
+		lineageTag: 788fdd0a-ff22-4d13-aa5d-56dc15aac48e
+		summarizeBy: none
+		sourceColumn: AdjustmentLevelID
+
+		annotation SummarizationSetBy = Automatic
+
+	column KEY_DATE
+		dataType: string
+		lineageTag: 75680c33-c74f-4933-8f46-8b9fcb0baa6f
+		summarizeBy: none
+		sourceColumn: KEY_DATE
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Facts = m
+		mode: import
+		source =
+				let
+				    Quelle = Sql.Database("wpjs2jmuaomupiax5ffbonab5m-2kdl77zj64pe7a6plcs44cjfla.datawarehouse.fabric.microsoft.com", "lh_2_lucanet"),
+				    dbo_Facts = Quelle{[Schema="dbo",Item="Facts"]}[Data],
+				
+				    // 1. Von String zu Date konvertieren
+				    // Wir nutzen "de-DE" um sicherzustellen, dass Tag und Monat nicht vertauscht werden
+				    ToDate = Table.TransformColumnTypes(dbo_Facts, {{"KEY_DATE", type date}}),
+				
+				    // 2. Ein Jahr addieren
+				    AddYear = Table.TransformColumns(ToDate, {
+				        {"KEY_DATE", each Date.AddYears(_, 1), type date}
+				    }),
+				
+				    // 3. Zurück in String konvertieren mit Format dd.MM.yyyy
+				    FormatToString = Table.TransformColumns(AddYear, {
+				        {"KEY_DATE", each Date.ToText(_, "dd.MM.yyyy"), type text}
+				    })
+				in
+				    FormatToString
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

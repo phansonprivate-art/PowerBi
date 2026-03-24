@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Lucanet_Finance"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "732179a4-06d9-490e-990f-389ad868c378"
+  }
+}

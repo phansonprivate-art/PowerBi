@@ -1,0 +1,26 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: de-DE
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["AccountStructure","DataLevel","PartnerStructure","Facts","Datum","Measure"]
+
+annotation PBI_ProTooling = ["MCP-PBIModeling"]
+
+annotation __TEdtr = 1
+
+ref table AccountStructure
+ref table DataLevel
+ref table PartnerStructure
+ref table Facts
+ref table Datum
+ref table Measure
+
+ref cultureInfo de-DE
+

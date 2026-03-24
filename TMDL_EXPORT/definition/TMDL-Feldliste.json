@@ -1,0 +1,154 @@
+﻿{
+    "generatedAt":  "2026-03-23T20:13:42.3788151+01:00",
+    "entities":  {
+                     "DataLevel":  {
+                                       "measures":  [
+
+                                                    ],
+                                       "columns":  [
+                                                       "DataLevelID",
+                                                       "DataLevelName",
+                                                       "DataLevelType",
+                                                       "PeriodFrom",
+                                                       "PeriodTo",
+                                                       "IsClosed",
+                                                       "IsArchived"
+                                                   ]
+                                   },
+                     "Datum":  {
+                                   "measures":  [
+
+                                                ],
+                                   "columns":  [
+                                                   "Datum",
+                                                   "KalenderTyp",
+                                                   "Periode",
+                                                   "Jahr",
+                                                   "Monat",
+                                                   "Monatsname",
+                                                   "Tag",
+                                                   "Kalenderwoche",
+                                                   "Wochentagname",
+                                                   "Wochentagnummer",
+                                                   "Quartal",
+                                                   "ErsterTagDesMonats",
+                                                   "LetzterTagDesMonats",
+                                                   "YTD",
+                                                   "KEY_DATE"
+                                               ]
+                               },
+                     "PartnerStructure":  {
+                                              "measures":  [
+
+                                                           ],
+                                              "columns":  [
+                                                              "PartnerID",
+                                                              "PartnerName",
+                                                              "ChildIndex",
+                                                              "IsDefaultPartner",
+                                                              "PartnerLevel1ID",
+                                                              "PartnerLevel1",
+                                                              "PartnerLevel1CI",
+                                                              "PartnerLevel2ID",
+                                                              "PartnerLevel2",
+                                                              "PartnerLevel2CI",
+                                                              "PartnerLevel3ID",
+                                                              "PartnerLevel3",
+                                                              "PartnerLevel3CI",
+                                                              "PartnerLevel4ID",
+                                                              "PartnerLevel4",
+                                                              "PartnerLevel4CI",
+                                                              "PartnerLevel5ID",
+                                                              "PartnerLevel5",
+                                                              "PartnerLevel5CI"
+                                                          ]
+                                          },
+                     "AccountStructure":  {
+                                              "measures":  [
+
+                                                           ],
+                                              "columns":  [
+                                                              "AccountLevel1",
+                                                              "AccountLevel2",
+                                                              "AccountLevel3",
+                                                              "AccountLevel4",
+                                                              "BalanceType",
+                                                              "ReportElementID",
+                                                              "AccountLevel2CI",
+                                                              "AccountLevel3CI"
+                                                          ]
+                                          },
+                     "Facts":  {
+                                   "measures":  [
+
+                                                ],
+                                   "columns":  [
+                                                   "Value",
+                                                   "ReportElementID",
+                                                   "PeriodID",
+                                                   "StructureTransactionTypeID",
+                                                   "OrganisationElementID",
+                                                   "PartnerID",
+                                                   "DataLevelID",
+                                                   "AdjustmentLevelID",
+                                                   "KEY_DATE"
+                                               ]
+                               },
+                     "Measure":  {
+                                     "measures":  [
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "\u0027GuV",
+                                                      "Date_Min",
+                                                      "Date_Max",
+                                                      "Max_Year"
+                                                  ],
+                                     "columns":  [
+                                                     "Measure"
+                                                 ]
+                                 }
+                 },
+    "totalEntities":  6
+}

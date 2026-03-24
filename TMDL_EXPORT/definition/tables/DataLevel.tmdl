@@ -1,0 +1,75 @@
+table DataLevel
+	lineageTag: efad6299-cdc4-4664-8589-752cdcfc3fad
+
+	column DataLevelID
+		dataType: int64
+		formatString: 0
+		lineageTag: 6e9fbf61-7b4e-4856-af55-85f3a68b3b52
+		summarizeBy: none
+		sourceColumn: DataLevelID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataLevelName
+		dataType: string
+		lineageTag: d188b6ea-5543-4fc6-b01d-f3f70ee0970c
+		summarizeBy: none
+		sourceColumn: DataLevelName
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataLevelType
+		dataType: string
+		lineageTag: fc35218c-a99a-4521-ad13-30ee26f74fc7
+		summarizeBy: none
+		sourceColumn: DataLevelType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PeriodFrom
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0121f942-fd6e-4416-863b-4bddb195883d
+		summarizeBy: none
+		sourceColumn: PeriodFrom
+
+		annotation SummarizationSetBy = Automatic
+
+	column PeriodTo
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: acc3bdf0-f628-4b32-8721-c7e0cb2b01e8
+		summarizeBy: none
+		sourceColumn: PeriodTo
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsClosed
+		dataType: int64
+		formatString: 0
+		lineageTag: 275a10fb-3611-4bb8-8f79-3dccfd7ef9b3
+		summarizeBy: none
+		sourceColumn: IsClosed
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsArchived
+		dataType: int64
+		formatString: 0
+		lineageTag: 44e5c94d-1028-4ed0-82fc-c0700aac404e
+		summarizeBy: none
+		sourceColumn: IsArchived
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DataLevel = m
+		mode: import
+		source =
+				let
+				    Quelle = Sql.Database("wpjs2jmuaomupiax5ffbonab5m-2kdl77zj64pe7a6plcs44cjfla.datawarehouse.fabric.microsoft.com", "lh_2_lucanet"),
+				    dbo_DataLevel = Quelle{[Schema="dbo",Item="DataLevel"]}[Data]
+				in
+				    dbo_DataLevel
+
+	annotation PBI_ResultType = Table
+
