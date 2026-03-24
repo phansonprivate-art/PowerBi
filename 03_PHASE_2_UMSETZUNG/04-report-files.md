@@ -4,7 +4,7 @@
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages\{PageID}\page.json`
 
-### Template:
+### 09_TEMPLATE:
 
 ```json
 {
@@ -66,7 +66,7 @@
 ### Wichtig:
 - ✅ `displayOption`: "FitToPage"
 - ✅ `visualContainers`: Name muss visuellen Ordnernamen entsprechen
-- ✅ `x, y, width, height, z`: Aus Template übernehmen
+- ✅ `x, y, width, height, z`: Aus 09_TEMPLATE übernehmen
 - ❌ KEIN `"ordinal"` Top-Level
 - ❌ KEIN `"filters"` Top-Level
 - ❌ KEIN `"config"` Top-Level

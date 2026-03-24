@@ -1,6 +1,6 @@
 # PBIP Semantic Model – definition.pbism Struktur
 
-## Minimal Template (v4.2)
+## Minimal 09_TEMPLATE (v4.2)
 
 ```json
 {

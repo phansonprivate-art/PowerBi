@@ -149,7 +149,7 @@
 
 ## report.json, definition.pbir, version.json
 
-Typische Werte – meist **von Template kopieren**:
+Typische Werte – meist **von 09_TEMPLATE kopieren**:
 
 ```json
 {

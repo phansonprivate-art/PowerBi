@@ -1,70 +1,30 @@
 # EINGABE-PARAMETER (Projekt-Setup)
 
-Fülle diese Parameter **VOR** dem Start aus. Alle nachfolgenden Pfade leiten sich davon ab.
-
 ## Pflicht-Parameter
 
 ```
-PROJEKTNAME    = "Lucanet_Finance"
-ZIELORDNER     = "C:\Users\phant\OneDrive\Desktop\Power BI\"
-TEMPLATE_PFAD  = "C:\Users\phant\OneDrive\Desktop\Power BI\Template"
+PROJEKTNAME  = "Lucanet_Finance"
+ZIELORDNER   = "C:\Users\phant\OneDrive\Desktop\Power BI"
+SEITEN       = "Bilanz, GuV, Cashflow"   ← komma-getrennt, Reihenfolge = $ReportPage1, $ReportPage2, ...
 ```
 
-## Automatisch abgeleitete Pfade
+## Projekt erstellen
 
-```
-PBIP-Projektordner   = {ZIELORDNER}\{PROJEKTNAME}
-                     = C:\Users\sphan\...\Desktop\Claude\Sons_Final_Result
-
-Report-Ordner        = {ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report
-                     = C:\Users\sphan\...\Desktop\Claude\Sons_Final_Result\Sons_Final_Result.Report
-
-SemanticModel-Ordner = {ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.SemanticModel
-                     = C:\Users\sphan\...\Desktop\Claude\Sons_Final_Result\Sons_Final_Result.SemanticModel
-
-TMDL-Ordner          = {ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.SemanticModel\definition
-                     = C:\Users\sphan\...\Desktop\Claude\Sons_Final_Result\Sons_Final_Result.SemanticModel\definition
+```powershell
+.\create-project.ps1 -Projektname {PROJEKTNAME} `
+                     -Zielordner  {ZIELORDNER} `
+                     -Seiten      {SEITEN}
 ```
 
-## Template-Struktur analysieren
-
-```
-{TEMPLATE_PFAD}
-├── *.SemanticModel/
-│   ├── definition/
-│   │   ├── database.tmdl
-│   │   ├── model.tmdl
-│   │   ├── tables/
-│   │   │   ├── DIM_*.tmdl
-│   │   │   └── _Measures.tmdl
-│   │   └── .platform
-│   └── definition.pbism
-│
-└── *.Report/
-    ├── definition/
-    │   ├── pages.json
-    │   ├── report.json
-    │   ├── version.json
-    │   ├── .relationships
-    │   ├── pages/            ← Pro Seite ein Ordner
-    │   │   ├── page.json
-    │   │   └── visuals/
-    │   │       ├── visual1/
-    │   │       │   └── visual.json
-    │   │       └── visual2/
-    │   │           └── visual.json
-    │   └── .platform
-    └── definition.pbir
-```
+> `TEMPLATE_PFAD` wird automatisch ermittelt: `<Repo-Verzeichnis>\09_TEMPLATE`
+> Das Projekt wird in `ZIELORDNER\PROJEKTNAME` erstellt — nicht im Repo.
 
 ## CRITICAL: TMDL = Einzige Quelle der Wahrheit
 
-> **Feldnamen für visual.json AUSSCHLIESSLICH aus {TMDL-Ordner}\tables\*.tmdl lesen!**
-> 
-> MCP liefert Feldnamen des aktuellen Modells, aber das ZIELMODELL kann ANDERE Feldnamen haben.
+> **Feldnamen für visual.json AUSSCHLIESSLICH aus `PROJEKTNAME.SemanticModel\definition\tables\*.tmdl` lesen!**
 >
 > ❌ NIEMALS MCP-Spaltennamen direkt in visual.json übernehmen!
-> ✅ Nur TMDL-Feldnamen verwenden (nach Export in Schritt 5A)
+> ✅ Nur TMDL-Feldnamen verwenden (nach Export in Phase 2 Schritt 2)
 
 ---
 

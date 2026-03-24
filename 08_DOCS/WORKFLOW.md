@@ -12,18 +12,22 @@ START
   ↓
 [ ] 1.1 Parameter ausfüllen
       → parameters.md
+      - PROJEKTNAME + ZIELORDNER setzen
+      - SEITEN festlegen (z.B. "Bilanz,GuV,Cashflow")
+      - 09_TEMPLATE ist fest: C:\Users\phant\.claude\PowerBi\09_TEMPLATE
   ↓
-[ ] 1.2 MCP Verbindung
+[ ] 1.2 Projekt aus 09_TEMPLATE erstellen
+      # Erstellt Projekt in ZIELORDNER – NICHT im Git-Repo!
+      .\create-project.ps1 -Projektname "..." -Zielordner "..." -Seiten "..."
+      - Kopiert 09_TEMPLATE nach ZIELORDNER\PROJEKTNAME
+      - Ersetzt $ReportPage1, $ReportPage2, ... mit echten Seitentiteln
+      - Benennt alle 09_TEMPLATE.*-Ordner auf PROJEKTNAME um
+  ↓
+[ ] 1.3 MCP Verbindung
       → 02_PHASE_1_ANALYSE/01-mcp-connection.md
       - Tabellen inventarisieren
       - Measures dokumentieren
       - Relationships prüfen
-  ↓
-[ ] 1.3 Template analysieren
-      → 02_PHASE_1_ANALYSE/02-template-analysis.md
-      - Seiten-Struktur
-      - Visual-Typen + Positionen
-      - Farbpalette
   ↓
 [ ] 1.4 Anforderungen dokumentieren
       → 02_PHASE_1_ANALYSE/03-requirements.md
@@ -169,7 +173,7 @@ START
 ```
 # Nach Phase 1
 git add .
-git commit -m "Phase 1: Requirements + Template Analysis"
+git commit -m "Phase 1: Requirements Analysis"
 
 # Nach Phase 2
 git add .
@@ -196,7 +200,7 @@ git push origin --all --tags
 | Phase 4 | 15min | Nein | Go-Live |
 | **TOTAL** | **3-4h** | - | Erste Iteration |
 
-**Nächste Iterationen:** 30-60 Min (Template nutzen)
+**Nächste Iterationen:** 30-60 Min (09_TEMPLATE nutzen)
 
 ---
 

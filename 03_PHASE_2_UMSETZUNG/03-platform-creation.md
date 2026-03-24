@@ -125,7 +125,7 @@
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\report.json`
 
-(Von Template kopieren oder):
+(Von 09_TEMPLATE kopieren: `C:\Users\phant\.claude\PowerBi\09_TEMPLATE\09_TEMPLATE.Report\definition\report.json`):
 
 ```json
 {

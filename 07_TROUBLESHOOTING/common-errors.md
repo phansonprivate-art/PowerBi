@@ -79,7 +79,7 @@ Syntax-Fehler in JSON (Komma, Klammer, Quote)
 
 ### Ursache
 ```
-Template-Version falsch kopiert
+09_TEMPLATE-Version falsch kopiert
 ```
 
 ### Lösung
@@ -98,7 +98,7 @@ Template-Version falsch kopiert
 
 ### Ursache
 ```
-Template hatte SemanticModel Referenz
+09_TEMPLATE hatte SemanticModel Referenz
 (das ist für Fabric Workspaces anders)
 ```
 
@@ -126,7 +126,7 @@ Template hatte SemanticModel Referenz
 
 ### Ursache
 ```
-visual.json kopiert von altem Template (alte Schema)
+visual.json kopiert von altem 09_TEMPLATE (alte Schema)
 ```
 
 ### Lösung

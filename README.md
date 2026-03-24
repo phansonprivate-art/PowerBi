@@ -30,7 +30,7 @@ POWER_BI_PBIP_AUTOMATION/
 │   └── pull_request_template.md
 ├── 00_KONFIGURATION/              ← Eingabe-Parameter
 ├── 01_SCHEMAS_REFERENCE/          ← Nachschlagewerk (Versionen, Regeln)
-├── 02_PHASE_1_ANALYSE/            ← Anforderungen (MCP, Template, Reqs)
+├── 02_PHASE_1_ANALYSE/            ← Anforderungen (MCP, 09_TEMPLATE, Reqs)
 ├── 03_PHASE_2_UMSETZUNG/          ← Technische Umsetzung (noch zu bauen)
 ├── 04_PHASE_3_VALIDIERUNG/        ← Checks 0-8 (noch zu bauen)
 ├── 05_AUTOMATION_SCRIPTS/         ← Python/PS Skripte (noch zu bauen)
@@ -53,7 +53,7 @@ POWER_BI_PBIP_AUTOMATION/
 ```
 PROJEKTNAME   = "Sons_Final_Result"
 ZIELORDNER    = "C:\Users\sphan\...\Desktop\Claude"
-TEMPLATE_PFAD = "C:\Users\sphan\...\Desktop\Claude\Template"
+TEMPLATE_PFAD = "C:\Users\sphan\...\Desktop\Claude\09_TEMPLATE"
 ```
 
 ### 2) Phase 1 durcharbeiten
