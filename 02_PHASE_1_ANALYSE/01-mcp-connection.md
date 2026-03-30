@@ -1,91 +1,96 @@
 # PHASE 1: SCHRITT 1 – MCP Verbindung & Metadaten
-
-## Ablauf (Sequential!)
-
-### 1️⃣ Connection einrichten
-
-**via MCP → connection_operations**
-
-```
-Operation: Connect
-ConnectionString: "localhost:port" oder "PowerBI Desktop"
-```
-
-**Status:** ✅ Verbindung erfolgreich oder ❌ Fehler → **STOPP**
+# Projekt: Lucanet_Finance | Stand: 2026-03-24 ✅ ABGESCHLOSSEN
 
 ---
 
-### 2️⃣ DatabaseID abrufen
+## ✅ Verbindung
 
-**via MCP → database_operations**
-
-```
-Operation: Get
-→ Ziel: "DatabaseID" und "ModelName" merken
-```
-
-**Ausgabe merken:**
-```
-{
-  "id": "12345-abc-def-ghi",    ← MERKEN für Schritt 5A!
-  "name": "SemanticModel",
-  "compatibilityLevel": 1700
-}
-```
+| Parameter | Wert |
+|-----------|------|
+| PBI Desktop | "Lucanet - Finance" |
+| Port | `61279` |
+| ConnectionString | `Data Source=localhost:61279;Application Name=MCP-PBIModeling` |
+| Status | ✅ Verbunden |
 
 ---
 
-### 3️⃣ Alle Tabellen auflisten
+## ✅ Datenbank
 
-**via MCP → table_operations**
-
-```
-Operation: List
-```
-
-**Zu dokumentieren:**
-```
-[ ] Wie viele Tabellen?
-[ ] Tabellennamen (z.B. DIM_Kalender, DIM_Produkt, ...)
-[ ] Welche sind Dimensions, welche Fakten?
-```
+| Parameter | Wert |
+|-----------|------|
+| **DatabaseID** | `33fc1078-7c99-4449-a1b4-09d6df87e161` |
+| Model | `Model` |
+| CompatibilityLevel | `1600` |
+| Sprache | `1031` (Deutsch) |
+| Zuletzt verarbeitet | 2026-03-18 |
 
 ---
 
-### 4️⃣ Alle Measures auflisten
+## ✅ Tabellen (6)
 
-**via MCP → measure_operations**
+| Tabelle | Spalten | Typ |
+|---------|---------|-----|
+| `Facts` | 9 | Faktentabelle |
+| `AccountStructure` | 8 | DIM – Kontenstruktur (Bilanz/GuV/CF-Hierarchie) |
+| `DataLevel` | 7 | DIM – Datenebene (Ist / Plan) |
+| `PartnerStructure` | 19 | DIM – Partner / Gesellschaft |
+| `Datum` | 15 | DIM – Kalender |
+| `Measure` | 1 + 48 Measures | Measure-Tabelle |
 
-```
-Operation: List
-```
-
-**Zu dokumentieren:**
-```
-[ ] Wie viele Measures?
-[ ] Measure-Namen (vor Neuerstellung!)
-[ ] Welche Display-Folders?
-[ ] Gibt es Time Intelligence Measures?
-```
+**Modell-Typ:** Star-Schema ✅
 
 ---
 
-### 5️⃣ Beziehungen abrufen
+## ✅ Measures (48) – Tabelle: `Measure`
 
-**via MCP → relationship_operations**
+### Standard
 
-```
-Operation: List
-```
+| Measure | Beschreibung |
+|---------|-------------|
+| `GuV Ist` | Ist-Werte GuV |
+| `GuV Plan` | Plan-Werte GuV |
+| `GuV Ist Operatives Ergebnis` | Ist-Werte op. Ergebnis |
+| `GuV Plan Operatives Ergebnis` | Plan-Werte op. Ergebnis |
+| `GuV Ist Umsatzerlöse` | Ist-Umsatz |
+| `Date_Min` / `Date_Max` / `Max_Year` | Datums-Hilfsmeasures |
 
-**Zu dokumentieren:**
-```
-[ ] Alle Relationships dokumentieren:
-    - FROM: (Tabelle.Spalte)
-    - TO: (Tabelle.Spalte)
-    - Active/Inactive?
-    - Cardinality?
-```
+### Time Intelligence (je Basis-Measure × 3 Serien)
+
+| Folder | Measures |
+|--------|---------|
+| `01 Current Period` | `…ACT` (4×) |
+| `02 Last Year` | `…LY` (4×) |
+| `03 YoY Variance (Monthly)` | `…Delta`, `…Delta %` (8×) |
+| `04 YTD` | `…YTD` (4×) |
+| `05 LYTD` | `…LYTD` (4×) |
+| `06 YTD Total` | `…YTD Total`, `…LYTD Total` (8×) |
+| `07 YoY Variance (YTD)` | `…YoY Total`, `…YoY Total %` (8×) |
+
+**Basis-Serien:** GuV Ist · GuV Plan · GuV Ist Operatives Ergebnis · GuV Plan Operatives Ergebnis
+
+**Time Intelligence:** ✅ Vollständig vorhanden
+
+### ✅ Neue Measures (in Phase 2 erstellt)
+
+| Measure | DAX-Formel (validiert) | Status |
+|---------|----------------------|--------|
+| `Bilanz Ist` | `CALCULATE(SUM(Facts[Value]), AccountStructure[AccountLevel1]="Bilanz", DataLevel[DataLevelName]="Ist")` | ✅ |
+| `Bilanz Plan` | `CALCULATE(SUM(Facts[Value]), AccountStructure[AccountLevel1]="Bilanz", DataLevel[DataLevelName]="Plan")` | ✅ |
+| `CF Ist` | `CALCULATE(SUM(Facts[Value]), AccountStructure[AccountLevel1]="Cashflow", DataLevel[DataLevelName]="Ist")` | ✅ |
+| `CF Plan` | `CALCULATE(SUM(Facts[Value]), AccountStructure[AccountLevel1]="Cashflow", DataLevel[DataLevelName]="Plan")` | ✅ |
+
+> ⚠️ **Wichtig:** `CALCULATE([GuV Ist], AccountLevel1="Bilanz")` liefert **BLANK** — `GuV Ist` filtert intern schon auf `AccountLevel1="GuV"`, das ist ein Filterkonflikt. Immer direkt `SUM(Facts[Value])` verwenden!
+
+---
+
+## ✅ Beziehungen (4) – alle aktiv, Many-to-One, OneDirection
+
+| Von | → | Zu |
+|-----|---|----|
+| `Facts.ReportElementID` | → | `AccountStructure.ReportElementID` |
+| `Facts.PartnerID` | → | `PartnerStructure.PartnerID` |
+| `Facts.DataLevelID` | → | `DataLevel.DataLevelID` |
+| `Facts.KEY_DATE` | → | `Datum.KEY_DATE` |
 
 ---
 
@@ -94,30 +99,21 @@ Operation: List
 ```
 ❌ column_operations NUR zur Orientierung!
 
-Die ECHTEN Spaltennamen kommen aus TMDL files (nach Export).
-
-MCP kann sagen "Category", aber TMDL hat "Kategorie"
+Die ECHTEN Spaltennamen kommen aus TMDL files (nach Export in Phase 2).
+MCP kann sagen "AccountLevel1", aber TMDL hat ggf. anderen Namen
 → IMMER TMDL verwenden, nicht MCP!
 ```
 
 ---
 
-## Status-Checkliste
+## ✅ Status-Checkliste
 
-- [ ] PBI Desktop läuft?
-- [ ] MCP Verbindung erfolgreich?
-- [ ] DatabaseID notiert?
-- [ ] Alle Tabellen inventarisiert?
-- [ ] Alle Measures inventarisiert?
-- [ ] Alle Relationships dokumentiert?
-- [ ] Keine Fehler → Weiter zu **SCHRITT 2**
-
----
-
-## Fehlerbehandlung
-
-| Fehler | Ursache | Lösung |
-|--------|--------|--------|
-| Keine PBI Instance | Desktop nicht offen | Öffne PBI Desktop + Modell |
-| Verbindung timeout | Falsche Konfiguration | Check `connection_operations` |
-| Keine Measures | Modell hat nur Implicit Measures | OK – erstelle neue in Phase 2 |
+- [x] PBI Desktop läuft ("Lucanet - Finance", Port 61279)
+- [x] MCP Verbindung erfolgreich
+- [x] DatabaseID: `33fc1078-7c99-4449-a1b4-09d6df87e161`
+- [x] 6 Tabellen inventarisiert
+- [x] 48 Measures inventarisiert (inkl. Display Folders)
+- [x] 4 Beziehungen dokumentiert
+- [x] Fehlende Measures für Bilanz & Cashflow identifiziert
+- [x] 4 neue Measures in Phase 2 erstellt (Bilanz Ist/Plan, CF Ist/Plan)
+- [x] Weiter zu **SCHRITT 2 (Template-Analyse)**

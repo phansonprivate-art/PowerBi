@@ -1,5 +1,143 @@
 # TROUBLESHOOTING – Häufige Fehler & Lösungen
 
+> **AKTUALISIERT nach Phase 2/3 Learnings (2026-03-30)**
+
+---
+
+## ❌ "Property 'query' has not been defined and the schema does not allow additional properties"
+
+### Ursache
+```
+query wurde als Top-Level Property in visual.json geschrieben (neben name, position, visual).
+Schema visualContainer/2.7.0 erlaubt query NUR innerhalb von visual{}.
+```
+
+### Lösung
+```json
+❌ FALSCH:
+{
+  "name": "...",
+  "visual": {...},
+  "query": { "queryState": {...} }    ← Top-Level = VERBOTEN
+}
+
+✅ RICHTIG:
+{
+  "name": "...",
+  "visual": {
+    "visualType": "...",
+    "query": { "queryState": {...} }   ← Innerhalb visual = OK
+  }
+}
+```
+
+**Siehe:** CRITICAL_RULES.md Regel 8
+
+---
+
+## ❌ "Invalid type. Expected Object but got Array. Path 'visual.query.queryState'"
+
+### Ursache
+```
+queryState wurde als Array [...] statt Object {...} geschrieben.
+Altes Format mit "Command": "SetBindingRef" ist UNGÜLTIG.
+```
+
+### Lösung
+```json
+❌ FALSCH:
+"queryState": [{"Command": "SetBindingRef", "Binding": {...}}]
+
+✅ RICHTIG:
+"queryState": {
+  "Values": {
+    "projections": [
+      {
+        "field": {"Measure": {"Expression": {"SourceRef": {"Entity": "Measure"}}, "Property": "Bilanz Ist"}},
+        "queryRef": "Measure.Bilanz Ist",
+        "nativeQueryRef": "Bilanz Ist"
+      }
+    ]
+  }
+}
+```
+
+**Siehe:** CRITICAL_RULES.md Regel 9, visual-formats.md Regel B
+
+---
+
+## ❌ "Felder, die korrigiert werden müssen: (Measure) Bilanz Ist, (Measure) Bilanz Plan"
+
+### Ursache
+```
+Measures existieren im laufenden SSAS (via MCP erstellt),
+aber NICHT in der Measure.tmdl Datei des PBIP-Projekts.
+PBI Desktop lädt Measures aus TMDL, nicht aus dem SSAS-Cache.
+```
+
+### Lösung
+```
+1. Measure.tmdl öffnen:
+   {Projekt}.SemanticModel/definition/tables/Measure.tmdl
+
+2. Measure hinzufügen:
+   measure 'Bilanz Ist' =
+       CALCULATE(SUM(Facts[Value]),
+           AccountStructure[AccountLevel1] = "Bilanz",
+           DataLevel[DataLevelName] = "Ist")
+       formatString: #,##0
+       displayFolder: Standard
+       lineageTag: {GUID}
+
+3. PBI Desktop schließen und .pbip erneut öffnen
+```
+
+**Siehe:** CRITICAL_RULES.md Regel 10
+
+---
+
+## ❌ "Fehler beim Laden des Berichts" (generisch, nur Activity-ID)
+
+### Ursache
+```
+Meistens: Ein oder mehrere visual.json Dateien haben Schema-Fehler.
+PBI Desktop stoppt den gesamten Report-Load wenn EIN Visual fehlerhaft ist.
+```
+
+### Lösung
+```
+1. Alle query-Bindings aus ALLEN Visuals entfernen (Reset):
+   python -c "
+   import json, glob, os
+   for vj in glob.glob('pages/*/visuals/*/visual.json'):
+       d = json.load(open(vj))
+       if 'query' in d.get('visual', {}):
+           del d['visual']['query']
+           json.dump(d, open(vj,'w'), indent=2)
+   "
+
+2. Report öffnen → Visuals laden als leere Container
+3. Bindings einzeln/schrittweise hinzufügen
+4. Nach jedem Schritt testen
+```
+
+---
+
+## ❌ "Keine Seiten-Tabs sichtbar / Report-Canvas komplett leer"
+
+### Ursache
+```
+"Fehler beim Laden des Berichts" verhindert das Laden der Report-Definition.
+Semantic Model lädt (Daten-Panel zeigt Tabellen), aber Report-Seiten fehlen.
+```
+
+### Lösung
+```
+1. Visual.json Fehler beheben (siehe oben)
+2. pages.json prüfen: pageOrder Array muss gültige Ordnernamen enthalten
+3. Jeder Ordner in pages/ muss page.json mit passendem "name" haben
+```
+
 ## ❌ "TMDL-Feldliste.json nicht gefunden"
 
 ### Ursache
@@ -165,16 +303,82 @@ Meistens: CHECK 7 nicht gelaufen
 
 ### Ursache
 ```
-Measure in visual.json referenziert, aber nicht in _Measures.tmdl
+Measure in visual.json referenziert, aber nicht in Measure.tmdl
+ODER: Entity heißt "_Measures" statt "Measure"
 ```
 
 ### Lösung
 ```
 1. TMDL-Feldliste.json öffnen
-2. "_Measures" Sektion prüfen
+2. "Measure" Sektion prüfen (nicht "_Measures"!)
 3. Measure existiert? NEIN → Phase 2 Schritt 1 (MCP create)
-4. Existiert? JA → visual.json Feldname korrigieren
+4. Existiert? JA → visual.json Entity auf "Measure" korrigieren
 5. CHECK 8 wiederholen
+```
+
+---
+
+## ❌ "create-project.ps1 crasht: Parameter 'Path' ist NULL"
+
+### Ursache
+```
+$_.DirectoryName gibt NULL zurück für Directory-Objekte.
+(DirectoryName existiert nur bei FileInfo, nicht bei DirectoryInfo)
+```
+
+### Lösung
+```powershell
+# FALSCH:
+$ElternPfad = $_.DirectoryName
+
+# RICHTIG:
+$ElternPfad = if ($_ -is [System.IO.DirectoryInfo]) {
+    $_.Parent.FullName
+} else {
+    $_.DirectoryName
+}
+```
+
+---
+
+## ❌ "python: Öffnet Windows Store" / "python nicht gefunden"
+
+### Ursache
+```
+Windows 10/11 liefert Python-Stub aus dem Store.
+"python" im Terminal → Windows Store öffnet sich.
+```
+
+### Lösung
+```
+1. Python 3.x von python.org installieren
+2. Danach "py" statt "python" verwenden:
+   py add_query_bindings.py     ← Windows Launcher
+   python3 script.py            ← Falls PATH gesetzt
+```
+
+---
+
+## ❌ "JSON enthält \u00f6 statt ö (Umlaut als Unicode-Escape)"
+
+### Ursache
+```
+Python json.dump() schreibt Umlaute standardmäßig als \u00f6.
+Das sieht falsch aus, ist aber 100% valides JSON.
+```
+
+### Verhalten
+```
+✅ PBI Desktop liest \u00f6 korrekt als ö
+✅ Kein Fehler beim Laden
+✅ Measure-Bindings funktionieren
+```
+
+### Lösung (wenn Klartext gewünscht)
+```python
+json.dump(data, f, indent=2, ensure_ascii=False)
+#                             ^^^^^^^^^^^^^^^^^^
+#                             Umlaute direkt schreiben
 ```
 
 ---

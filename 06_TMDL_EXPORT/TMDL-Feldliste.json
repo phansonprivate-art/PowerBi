@@ -1,7 +1,59 @@
-﻿{
-    "generatedAt":  "2026-03-23T20:13:16.0517710+01:00",
-    "entities":  {
-
-                 },
-    "totalEntities":  0
+{
+  "generatedAt": "2026-03-24T10:25:23Z",
+  "note": "Feldnamen aus TMDL-Export – Einzige Quelle der Wahrheit für visual.json Property-Werte",
+  "entities": {
+    "AccountStructure": {
+      "type": "table",
+      "columns": ["AccountLevel1", "AccountLevel2", "AccountLevel3", "AccountLevel4", "BalanceType", "ReportElementID", "AccountLevel2CI", "AccountLevel3CI"]
+    },
+    "DataLevel": {
+      "type": "table",
+      "columns": ["DataLevelID", "DataLevelName", "DataLevelType", "PeriodFrom", "PeriodTo", "IsClosed", "IsArchived"],
+      "knownValues": { "DataLevelName": ["Ist", "Plan"] }
+    },
+    "Datum": {
+      "type": "table",
+      "dataCategory": "Time",
+      "columns": ["Datum", "KalenderTyp", "Periode", "Jahr", "Monat", "Monatsname", "Tag", "Kalenderwoche", "Wochentagname", "Wochentagnummer", "Quartal", "ErsterTagDesMonats", "LetzterTagDesMonats", "YTD", "KEY_DATE"]
+    },
+    "Facts": {
+      "type": "table",
+      "columns": ["Value", "ReportElementID", "PartnerID", "DataLevelID", "KEY_DATE"]
+    },
+    "PartnerStructure": {
+      "type": "table",
+      "columns": ["PartnerID", "PartnerName", "ChildIndex", "IsDefaultPartner", "PartnerLevel1ID", "PartnerLevel1", "PartnerLevel1CI", "PartnerLevel2ID", "PartnerLevel2", "PartnerLevel2CI", "PartnerLevel3ID", "PartnerLevel3", "PartnerLevel3CI", "PartnerLevel4ID", "PartnerLevel4", "PartnerLevel4CI", "PartnerLevel5ID", "PartnerLevel5", "PartnerLevel5CI"]
+    },
+    "Measure": {
+      "type": "table",
+      "measures": [
+        "GuV Ist", "GuV Plan", "GuV Ist Operatives Ergebnis", "GuV Plan Operatives Ergebnis", "GuV Ist Umsatzerlöse",
+        "Date_Min", "Date_Max", "Max_Year",
+        "GuV Ist ACT", "GuV Plan ACT", "GuV Ist Operatives Ergebnis ACT", "GuV Plan Operatives Ergebnis ACT",
+        "GuV Ist LY", "GuV Plan LY", "GuV Ist Operatives Ergebnis LY", "GuV Plan Operatives Ergebnis LY",
+        "GuV Ist Delta", "GuV Ist Delta %", "GuV Plan Delta", "GuV Plan Delta %",
+        "GuV Ist Operatives Ergebnis Delta", "GuV Ist Operatives Ergebnis Delta %",
+        "GuV Plan Operatives Ergebnis Delta", "GuV Plan Operatives Ergebnis Delta %",
+        "GuV Ist YTD", "GuV Plan YTD", "GuV Ist Operatives Ergebnis YTD", "GuV Plan Operatives Ergebnis YTD",
+        "GuV Ist LYTD", "GuV Plan LYTD", "GuV Ist Operatives Ergebnis LYTD", "GuV Plan Operatives Ergebnis LYTD",
+        "GuV Ist YTD Total", "GuV Ist LYTD Total", "GuV Plan YTD Total", "GuV Plan LYTD Total",
+        "GuV Ist Operatives Ergebnis YTD Total", "GuV Ist Operatives Ergebnis LYTD Total",
+        "GuV Plan Operatives Ergebnis YTD Total", "GuV Plan Operatives Ergebnis LYTD Total",
+        "GuV Ist YoY Total", "GuV Ist YoY Total %", "GuV Plan YoY Total", "GuV Plan YoY Total %",
+        "GuV Ist Operatives Ergebnis YoY Total", "GuV Ist Operatives Ergebnis YoY Total %",
+        "GuV Plan Operatives Ergebnis YoY Total", "GuV Plan Operatives Ergebnis YoY Total %",
+        "Bilanz Ist", "Bilanz Plan", "CF Ist", "CF Plan"
+      ]
+    }
+  },
+  "slicerBindings": {
+    "Jahr":          { "Entity": "Datum",            "Property": "Jahr" },
+    "Monatsname":    { "Entity": "Datum",            "Property": "Monatsname" },
+    "Quartal":       { "Entity": "Datum",            "Property": "Quartal" },
+    "DataLevelName": { "Entity": "DataLevel",        "Property": "DataLevelName" },
+    "AccountLevel1": { "Entity": "AccountStructure", "Property": "AccountLevel1" },
+    "AccountLevel2": { "Entity": "AccountStructure", "Property": "AccountLevel2" },
+    "PartnerName":   { "Entity": "PartnerStructure", "Property": "PartnerName" }
+  },
+  "totalEntities": 6
 }

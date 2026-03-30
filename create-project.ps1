@@ -76,7 +76,8 @@ Get-ChildItem -Path $ProjektPfad -Recurse -Depth 5 |
     Where-Object { $_.Name -like "*Template*" } |
     Sort-Object { $_.FullName.Length } -Descending |
     ForEach-Object {
-        $Neu = Join-Path $_.DirectoryName ($_.Name -replace "Template", $Projektname)
+        $ElternPfad = if ($_ -is [System.IO.DirectoryInfo]) { $_.Parent.FullName } else { $_.DirectoryName }
+        $Neu = Join-Path $ElternPfad ($_.Name -replace "Template", $Projektname)
         Rename-Item -Path $_.FullName -NewName $Neu -Force
     }
 

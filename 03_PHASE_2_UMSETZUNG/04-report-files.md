@@ -8,7 +8,7 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/page/2.1.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
   "name": "Page_Overview",
   "displayName": "Übersicht",
   "displayOption": "FitToPage",
@@ -77,111 +77,88 @@
 
 **Pfad:** `{ZIELORDNER}\{PROJEKTNAME}\{PROJEKTNAME}.Report\definition\pages\{PageID}\visuals\{VisualID}\visual.json`
 
-### Beispiel: Table Visual mit TMDL Feldnamen
+### Beispiel: Table Visual mit TMDL Feldnamen — KORRIGIERTES FORMAT
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "Visual_Sales_Table",
   "visual": {
-    "visualType": "table",
+    "visualType": "tableEx",
     "objects": {},
-    "dataRoles": [
-      {
-        "name": "Values",
-        "displayName": "Werte",
-        "kind": "GroupingHorizontal"
-      }
-    ]
-  },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Kalender"
-                      },
-                      "Property": "Jahr"
-                    }
-                  },
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Produkt"
-                      },
-                      "Property": "Kategorie"
-                    }
-                  },
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": { "SourceRef": { "Entity": "AccountStructure" } },
+                  "Property": "AccountLevel2"
+                }
+              },
+              "queryRef": "AccountStructure.AccountLevel2",
+              "nativeQueryRef": "AccountLevel2"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": { "SourceRef": { "Entity": "AccountStructure" } },
+                  "Property": "AccountLevel3"
+                }
+              },
+              "queryRef": "AccountStructure.AccountLevel3",
+              "nativeQueryRef": "AccountLevel3"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": { "SourceRef": { "Entity": "Measure" } },
+                  "Property": "GuV Ist"
+                }
+              },
+              "queryRef": "Measure.GuV Ist",
+              "nativeQueryRef": "GuV Ist"
+            }
+          ]
         }
       }
-    ]
+    }
   }
 }
 ```
 
-### Beispiel: Card Visual (Measure)
+### Beispiel: Card Visual (Measure) — KORRIGIERTES FORMAT
+
+> **ACHTUNG:** `query` muss INNERHALB von `visual` sein! `queryState` ist ein Object mit Rollen-Keys!
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "Visual_Sales_Card",
   "visual": {
-    "visualType": "card",
-    "objects": {
-      "calloutValue": [
-        {
-          "properties": {
-            "textSize": {
-              "value": 28
+    "visualType": "cardVisual",
+    "objects": {...},
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": { "SourceRef": { "Entity": "Measure" } },
+                  "Property": "Bilanz Ist"
+                }
+              },
+              "queryRef": "Measure.Bilanz Ist",
+              "nativeQueryRef": "Bilanz Ist"
             }
-          }
-        }
-      ]
-    }
-  },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
+          ]
         }
       }
-    ]
+    }
   }
 }
 ```
@@ -190,58 +167,54 @@
 
 ```json
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "Visual_Sales_Chart",
   "visual": {
-    "visualType": "barChart",
-    "objects": {
-      "categoryAxis": [
-        {
-          "properties": {
-            "show": {
-              "value": true
-            }
-          }
-        }
-      ]
-    }
-  },
-  "query": {
-    "queryState": [
-      {
-        "Command": "SetBindingRef",
-        "Binding": {
-          "Primary": {
-            "Groupings": [
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "DIM_Produkt"
-                      },
-                      "Property": "Kategorie"
-                    }
-                  }
-                ]
+    "visualType": "clusteredBarChart",
+    "objects": {...},
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": { "SourceRef": { "Entity": "AccountStructure" } },
+                  "Property": "AccountLevel3"
+                }
               },
-              {
-                "Projections": [
-                  {
-                    "Expression": {
-                      "SourceRef": {
-                        "Entity": "_Measures"
-                      },
-                      "Property": "Umsatz"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
+              "queryRef": "AccountStructure.AccountLevel3",
+              "nativeQueryRef": "AccountLevel3"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": { "SourceRef": { "Entity": "Measure" } },
+                  "Property": "Bilanz Ist"
+                }
+              },
+              "queryRef": "Measure.Bilanz Ist",
+              "nativeQueryRef": "Bilanz Ist"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": { "SourceRef": { "Entity": "Measure" } },
+                  "Property": "Bilanz Plan"
+                }
+              },
+              "queryRef": "Measure.Bilanz Plan",
+              "nativeQueryRef": "Bilanz Plan"
+            }
+          ]
         }
       }
-    ]
+    }
   }
 }
 ```
@@ -254,58 +227,76 @@
 |-------|-----------|----------|
 | **Entity** | `"Entity": "DIM_Kalender"` | `"Source": "..."` |
 | **Property** | Aus TMDL-Feldliste | Von MCP erfunden |
-| **query** | `"queryState": [...]` | `"prototypeQuery"` |
-| **Top-Level** | ❌ Kein `"filters"` | ✅ In `queryState` |
-| **SourceRef** | IMMER vorhanden | Darf nie fehlen |
-| **Measure Ref** | `"Entity": "_Measures"` + `"Property": "Umsatz"` | Direkt als String |
+| **query Position** | Innerhalb `visual{}` | Top-Level (neben name/position) |
+| **queryState Typ** | Object `{}` mit Rollen-Keys | Array `[]` mit SetBindingRef |
+| **Projection** | `field` + `queryRef` + `nativeQueryRef` | Nur `Expression` |
+| **SourceRef** | IMMER `"Entity"` | `"Source"` |
+| **Measure Ref** | `"Entity": "Measure"` | `"Entity": "_Measures"` |
+| **Measures in TMDL** | Pflicht (Measure.tmdl) | Nur MCP (In-Memory) |
+
+### Umlaute in Measure-Namen
+
+Python schreibt Umlaute als JSON-Unicode-Escape (`ö` → `\u00f6`). Das ist **vollständig valides JSON** — PBI Desktop liest es korrekt. Kein manueller Fix nötig. Für Klartext `ensure_ascii=False` setzen:
+
+```python
+json.dump(data, f, indent=2, ensure_ascii=False)
+```
 
 ---
 
 ## Automatische Generation (Python)
 
+> **Hinweis Windows:** `python` öffnet ggf. den Windows Store. Stattdessen `py` (Windows Launcher) verwenden:
+> ```
+> py 05_AUTOMATION_SCRIPTS\add_query_bindings.py
+> ```
+> Das fertige Binding-Script liegt unter `05_AUTOMATION_SCRIPTS\add_query_bindings.py`.
+
 ```python
-def generate_table_visual(visual_id, fields_from_tmdl):
-    """
-    Generiert visual.json aus TMDL-Feldliste
-    fields_from_tmdl = {
-        "entity": "DIM_Kalender",
-        "properties": ["Jahr", "Quartal"]
+# KORRIGIERTES FORMAT (2026-03-30)
+def measure_proj(name):
+    """Measure-Projection für queryState"""
+    return {
+        "field": {
+            "Measure": {
+                "Expression": {"SourceRef": {"Entity": "Measure"}},
+                "Property": name
+            }
+        },
+        "queryRef": f"Measure.{name}",
+        "nativeQueryRef": name
     }
-    """
-    
-    projections = []
-    for prop in fields_from_tmdl["properties"]:
-        projections.append({
-            "Expression": {
-                "SourceRef": {
-                    "Entity": fields_from_tmdl["entity"]
-                },
+
+def column_proj(table, prop):
+    """Column-Projection für queryState"""
+    return {
+        "field": {
+            "Column": {
+                "Expression": {"SourceRef": {"Entity": table}},
                 "Property": prop
             }
-        })
-    
-    return {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/report/visualContainer/2.7.0/schema.json",
-        "name": visual_id,
-        "visual": {
-            "visualType": "table",
-            "objects": {},
-            "dataRoles": [{"name": "Values", "displayName": "Werte", "kind": "GroupingHorizontal"}]
         },
-        "query": {
-            "queryState": [{
-                "Command": "SetBindingRef",
-                "Binding": {
-                    "Primary": {
-                        "Groupings": [{
-                            "Projections": projections
-                        }]
-                    }
-                }
-            }]
-        }
+        "queryRef": f"{table}.{prop}",
+        "nativeQueryRef": prop
     }
+
+def add_binding(visual_data, roles_dict):
+    """Fügt queryState-Binding zu einem Visual hinzu.
+
+    roles_dict = {
+        "Category": [column_proj("Datum", "Monatsname")],
+        "Y": [measure_proj("Bilanz Ist"), measure_proj("Bilanz Plan")]
+    }
+    """
+    qs = {}
+    for role, projs in roles_dict.items():
+        if not isinstance(projs, list):
+            projs = [projs]
+        qs[role] = {"projections": projs}
+    visual_data["visual"]["query"] = {"queryState": qs}
 ```
+
+> **Fertige Scripts:** `05_AUTOMATION_SCRIPTS/bind_visuals_v2.py` (produktionsreif, alle 3 Seiten)
 
 ---
 
@@ -314,6 +305,7 @@ def generate_table_visual(visual_id, fields_from_tmdl):
 - [ ] Alle page.json Dateien für jede Seite vorhanden?
 - [ ] visual.json in korrekten Ordnern?
 - [ ] SourceRef nutzt "Entity" (nicht "Source")?
+- [ ] Measure-Entity = "Measure" (nicht "_Measures")?
 - [ ] Property-Werte alle aus TMDL-Feldliste?
 - [ ] Keine Top-Level "filters" oder "filterConfig"?
 - [ ] query nur "queryState" (keine "prototypeQuery")?
