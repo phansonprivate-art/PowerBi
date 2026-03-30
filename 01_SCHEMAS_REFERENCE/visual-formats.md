@@ -131,7 +131,7 @@ Jede Projection hat 3 Felder: `field`, `queryRef`, `nativeQueryRef`
 
 | Visual Type | Rollen | Beschreibung |
 |-------------|--------|--------------|
-| `cardVisual` | `Values` | Hauptwert (Measure) |
+| `cardVisual` | `Data` + `Fields` | BEIDE Rollen mit demselben Measure + `sortDefinition` |
 | `slicer` | `Values` | Feld zum Filtern (Column) |
 | `lineChart` | `Category`, `Y` | X-Achse (Column), Y-Achse (Measures) |
 | `donutChart` | `Category`, `Y` | Segmente (Column), Werte (Measure) |
@@ -160,13 +160,16 @@ Jede Projection hat 3 Felder: `field`, `queryRef`, `nativeQueryRef`
 
 ## Vollständiges Beispiel: Card Visual mit Measure
 
+> **WICHTIG:** `cardVisual` braucht ZWEI Rollen: `"Data"` UND `"Fields"` (beide mit identischem Measure),
+> plus eine `sortDefinition`. Format verifiziert durch PBI Desktop Save (2026-03-30).
+
 ```json
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "e08628bf944cfaa394aa",
   "position": {
-    "x": 0, "y": 0, "z": 5000,
-    "height": 155, "width": 380, "tabOrder": 5000
+    "x": 0, "y": 0, "z": 3000,
+    "height": 155, "width": 380, "tabOrder": 0
   },
   "visual": {
     "visualType": "cardVisual",
@@ -174,7 +177,23 @@ Jede Projection hat 3 Felder: `field`, `queryRef`, `nativeQueryRef`
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Values": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": { "Entity": "Measure" }
+                  },
+                  "Property": "Bilanz Ist"
+                }
+              },
+              "queryRef": "Measure.Bilanz Ist",
+              "nativeQueryRef": "Bilanz Ist"
+            }
+          ]
+        },
+        "Fields": {
           "projections": [
             {
               "field": {
@@ -190,6 +209,22 @@ Jede Projection hat 3 Felder: `field`, `queryRef`, `nativeQueryRef`
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": { "Entity": "Measure" }
+                },
+                "Property": "Bilanz Ist"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     }
   }
