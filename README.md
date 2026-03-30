@@ -72,29 +72,21 @@ TEMPLATE_PFAD = "C:\Users\sphan\...\Desktop\Claude\09_TEMPLATE"
 
 ---
 
-## 🔑 5 Kritische Regeln
+## 🔑 11 Kritische Regeln
 
 ⚠️ **NIEMALS brechen:**
 
-1. **TMDL = Einzige Feldquelle**
-   - Feldnamen aus `{TMDL-Ordner}\tables\*.tmdl` lesen
-   - ❌ NICHT von MCP oder eigene Erfindungen
-
-2. **version: "4.2" in definition.pbism**
-   - ❌ Nicht `"1.0.0"`
-   - ❌ Nicht `"1"`
-
-3. **.pbip artifacts = NUR Report**
-   - ✅ `{"report": {...}}`
-   - ❌ KEIN `"semanticModel"`
-
-4. **visual.json SourceRef = "Entity"**
-   - ✅ `{"SourceRef": {"Entity": "..."}}`
-   - ❌ Nicht `{"Source": "..."}`
-
-5. **CHECK 7 VOR PBI Desktop öffnen**
-   - Alle Feldnamen validieren
-   - ❌ Keine "Property existiert nicht" Fehler
+1. **TMDL = Einzige Feldquelle** — Feldnamen nur aus `.tmdl` lesen
+2. **version: "4.2" in definition.pbism** — nicht "1.0.0"
+3. **.pbip artifacts = NUR Report** — kein "semanticModel"
+4. **visual.json SourceRef = "Entity"** — nicht "Source"
+5. **CHECK 7 VOR PBI Desktop öffnen** — Feldnamen validieren
+6. **Entity für Measures = "Measure"** — nicht "_Measures"
+7. **Property = exakter TMDL-Feldname** — keine MCP-Namen
+8. **query INNERHALB visual{}** — nicht Top-Level
+9. **queryState = Object {}** — nicht Array []
+10. **Measures in TMDL-Datei eintragen** — MCP = nur In-Memory
+11. **Template max 2 Seiten** — 3. Seite manuell kopieren
 
 → [08_DOCS/CRITICAL_RULES.md](08_DOCS/CRITICAL_RULES.md)
 
